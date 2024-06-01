@@ -1,0 +1,26 @@
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+
+# Environment files
+myenv/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Other files and folders
+*.DS_Store
+*.log
+*.csv
+*.json
+local_settings.py
+
+
+#React
+node_modules/
+build/
+coverage/
