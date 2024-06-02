@@ -3,6 +3,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import AddressBookEntry
 from .serializers import AddressBookEntrySerializer
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes
+
 
 
 """
@@ -13,8 +17,9 @@ and uses serializers to validate and serialize the data.
 """
 
 
-
+@csrf_exempt
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def create_entry(request):
     """
     Create a new address book entry.
@@ -26,9 +31,24 @@ def create_entry(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_entries(request):
+    """
+    Retrieves all address book entries.
+    """
+    if request.method == 'GET':
+        entries = AddressBookEntry.objects.all()
+        serializer = AddressBookEntrySerializer(entries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+@csrf_exempt
 @api_view(['PATCH'])
+@permission_classes([AllowAny])
 def update_entry(request, pk):
     """
     Update an existing address book entry identified by the primary key (pk).
@@ -47,7 +67,9 @@ def update_entry(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+@csrf_exempt
 @api_view(['DELETE'])
+@permission_classes([AllowAny])
 def delete_entry(request, pk):
     """
     Delete an address book entry identified by the primary key (pk).
