@@ -7,7 +7,8 @@ const Search = ({ searchTerm, setSearchTerm }) => {
             <TextField
                 label="Search"
                 variant="outlined"
-                fullWidth
+                fullWidth={false}
+                style={{ width: '20%' }}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
