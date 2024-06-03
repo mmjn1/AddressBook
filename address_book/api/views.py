@@ -7,6 +7,19 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def search_entries(request):
+    """
+    Search for address book entries by first name.
+    """
+    first_name = request.query_params.get('first_name', None)
+    if first_name is not None:
+        entries = AddressBookEntry.objects.filter(first_name__icontains=first_name)
+        serializer = AddressBookEntrySerializer(entries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({"detail": "First name parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 """

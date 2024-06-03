@@ -13,4 +13,6 @@ urlpatterns = [
     path('fetch-entry/<int:pk>/', get_entry, name='get_entry'),
     path('update-entry/<int:pk>/', update_entry, name='update_details'),
     path('delete-entry/<int:pk>/', delete_entry, name='delete_details'),
+    path('search-entries/', search_entries, name='search_entries'),  
+
 ]
