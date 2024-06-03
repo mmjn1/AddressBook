@@ -45,6 +45,22 @@ def get_entries(request):
         serializer = AddressBookEntrySerializer(entries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_entry(request, pk):
+    """
+    Retrieve a single address book entry by its primary key (pk).
+    """
+    try:
+        entry = AddressBookEntry.objects.get(pk=pk)
+    except AddressBookEntry.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = AddressBookEntrySerializer(entry)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
     
 @csrf_exempt
 @api_view(['PATCH'])
