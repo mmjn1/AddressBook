@@ -65,7 +65,7 @@ Create another window on your terminal by clicking the + icon
 
 Navigate to the frontend directory:
 
-    cd ../address-book-frontend
+    cd address_book/address-book-frontend
 
 Install the required Node.js packages:
 
