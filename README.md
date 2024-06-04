@@ -57,7 +57,7 @@ Run the Django development server:
 
 Your Django development server will be running at http://127.0.0.1:8000/
 
-You can access the admin panel by adding - http://127.0.0.1:8000/admin in the search bar and then enter your email and password.
+You can access the admin panel by adding http://127.0.0.1:8000/admin in the search bar and then enter your email and password.
 
 ## Setting up the Frontend (React)
 
@@ -79,12 +79,13 @@ Start the React development server:
 - **Development Mode:** Open http://localhost:3000 in your browser to view the application.
 
 
-## Running Tests for the Backend (Django)
+## Running unit tests for the Backend (Django)
 
 1. **Run the unit tests (intentionally fail the tests):**
-    ```bash
+
     python manage.py test api.tests.failingtests
    
 
 2. **Run the unit tests (code to pass the failing tests):**
+
     python manage.py test api.tests.passingtests
