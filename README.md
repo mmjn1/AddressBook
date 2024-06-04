@@ -11,7 +11,7 @@ The primary users of this application are:
 
 ## Getting Started
 
-Follow these instructions to set up the project on your local machine for development and testing purposes. Note that running the entire application will require opening multiple terminal windows to manage different components simultaneously. In total, you should expect to have two terminal windows open.
+Follow these instructions to set up the project on your local machine for development and testing purposes. Note that running the entire application will require opening multiple terminal windows to manage different components simultaneously. In total, you should expect to have two terminal windows open.           
 
 **Cloning the Repository**
 
@@ -78,10 +78,13 @@ Start the React development server:
 **Accessing the Application**
 - **Development Mode:** Open http://localhost:3000 in your browser to view the application.
 
-## Running Tests
 
-### Backend (Django)
+## Running Tests for the Backend (Django)
 
-1. **Run the unit tests:**
-   ```bash
-   python manage.py test
+1. **Run the unit tests (intentionally fail the tests):**
+    ```bash
+    python manage.py test api.tests.failingtests
+   
+
+2. **Run the unit tests (code to pass the failing tests):**
+    python manage.py test api.tests.passingtests
