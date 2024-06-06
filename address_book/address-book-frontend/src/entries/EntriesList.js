@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Checkbox } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Checkbox, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DeleteConfirmationModal from '../modals/DeleteConfirmationModal';
 import { CSVLink } from 'react-csv';
@@ -31,6 +31,7 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
     const [selectedEntryId, setSelectedEntryId] = useState(null);
     const [selectedEntries, setSelectedEntries] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleDeleteClick = (id) => {
         setSelectedEntryId(id);
@@ -102,6 +103,10 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
     };
 
     const handleDeleteSelected = () => {
+        if (selectedEntries.length === 0) {
+            setErrorMessage('Please select at least one entry to delete.');
+            return;
+        }
         setDeleteMode('multiple');
         setOpenDeleteModal(true);
     };
@@ -199,20 +204,26 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
                 >
                     Delete Selected
                 </Button>
-                <CSVLink
-                    data={selectedEntriesData}
-                    headers={csvHeaders}
-                    filename={`selected_entries_${new Date().toISOString()}.csv`}
-                    style={{ textDecoration: 'none', color: '#fff' }}
-                >
-                    <Button
-                        variant="contained"
-                        style={{ backgroundColor: '#F5763A', marginTop: '10px', marginLeft: '10px' }}
-                        disabled={selectedEntries.length === 0}
+                {errorMessage && (
+                    <Typography variant="body2" color="error" style={{ marginTop: '10px' }}>
+                        {errorMessage}
+                    </Typography>
+                )}
+                {selectedEntries.length > 0 && (
+                    <CSVLink
+                        data={selectedEntriesData}
+                        headers={csvHeaders}
+                        filename={`selected_entries_${new Date().toISOString()}.csv`}
+                        style={{ textDecoration: 'none', color: '#fff' }}
                     >
-                        Export Selected to CSV
-                    </Button>
-                </CSVLink>
+                        <Button
+                            variant="contained"
+                            style={{ backgroundColor: '#F5763A', marginTop: '10px', marginLeft: '10px' }}
+                        >
+                            Export Selected to CSV
+                        </Button>
+                    </CSVLink>
+                )}
             </TableContainer>
             <DeleteConfirmationModal 
                 open={openDeleteModal}
