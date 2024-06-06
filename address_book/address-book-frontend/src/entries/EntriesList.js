@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Checkbox } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DeleteConfirmationModal from '../modals/DeleteConfirmationModal';
 import { CSVLink } from 'react-csv';
@@ -27,24 +27,41 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const EntriesList = ({ entries, setEntries, onEdit }) => {
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [deleteMode, setDeleteMode] = useState('single'); // 'single' or 'multiple'
     const [selectedEntryId, setSelectedEntryId] = useState(null);
+    const [selectedEntries, setSelectedEntries] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const handleDeleteClick = (id) => {
         setSelectedEntryId(id);
+        setDeleteMode('single');
         setOpenDeleteModal(true);
     };
 
     const handleDeleteConfirm = () => {
-        axios.delete(`http://localhost:8000/api/delete-entry/${selectedEntryId}/`)
-            .then(response => {
-                setEntries(entries.filter(entry => entry.id !== selectedEntryId));
-                setOpenDeleteModal(false);
-                setSelectedEntryId(null);
-            })
-            .catch(error => {
-                console.error('There was an error deleting the entry!', error);
+        if (deleteMode === 'single') {
+            axios.delete(`http://localhost:8000/api/delete-entry/${selectedEntryId}/`)
+                .then(response => {
+                    setEntries(entries.filter(entry => entry.id !== selectedEntryId));
+                    setOpenDeleteModal(false);
+                    setSelectedEntryId(null);
+                })
+                .catch(error => {
+                    console.error('There was an error deleting the entry!', error);
+                });
+        } else if (deleteMode === 'multiple') {
+            selectedEntries.forEach((id) => {
+                axios.delete(`http://localhost:8000/api/delete-entry/${id}/`)
+                    .then(() => {
+                        setEntries((prevEntries) => prevEntries.filter((entry) => entry.id !== id));
+                    })
+                    .catch((error) => {
+                        console.error(`There was an error deleting entry with id ${id}!`, error);
+                    });
             });
+            setSelectedEntries([]);
+            setOpenDeleteModal(false);
+        }
     };
 
     const handleDeleteCancel = () => {
@@ -76,6 +93,19 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
         return sortableEntries;
     }, [entries, sortConfig]);
 
+    const handleSelectEntry = (id) => {
+        setSelectedEntries((prevSelectedEntries) =>
+            prevSelectedEntries.includes(id)
+                ? prevSelectedEntries.filter((entryId) => entryId !== id)
+                : [...prevSelectedEntries, id]
+        );
+    };
+
+    const handleDeleteSelected = () => {
+        setDeleteMode('multiple');
+        setOpenDeleteModal(true);
+    };
+
     const csvHeaders = [
         { label: 'ID', key: 'id' },
         { label: 'First Name', key: 'first_name' },
@@ -84,12 +114,28 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
         { label: 'Email', key: 'email' },
     ];
 
+    const selectedEntriesData = sortedEntries.filter((entry) => selectedEntries.includes(entry.id));
+
     return (
         <>
             <TableContainer component={Paper} style={{ marginTop: '20px', borderRadius: '8px', overflow: 'hidden' }}>
                 <StyledTable>
                     <TableHead style={{ backgroundColor: '#F5763A' }}>
                         <TableRow>
+                            <StyledTableCell padding="checkbox">
+                                <Checkbox
+                                    color="primary"
+                                    indeterminate={selectedEntries.length > 0 && selectedEntries.length < entries.length}
+                                    checked={entries.length > 0 && selectedEntries.length === entries.length}
+                                    onChange={(event) => {
+                                        if (event.target.checked) {
+                                            setSelectedEntries(entries.map((entry) => entry.id));
+                                        } else {
+                                            setSelectedEntries([]);
+                                        }
+                                    }}
+                                />
+                            </StyledTableCell>
                             <StyledTableCell style={{ color: '#fff' }} onClick={() => requestSort('id')}>
                                 ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                             </StyledTableCell>
@@ -110,7 +156,14 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
                     </TableHead>
                     <TableBody>
                         {sortedEntries.map(entry => (
-                            <StyledTableRow key={entry.id}>
+                            <StyledTableRow key={entry.id} selected={selectedEntries.includes(entry.id)}>
+                                <TableCell padding="checkbox">
+                                    <Checkbox
+                                        color="primary"
+                                        checked={selectedEntries.includes(entry.id)}
+                                        onChange={() => handleSelectEntry(entry.id)}
+                                    />
+                                </TableCell>
                                 <TableCell>{entry.id}</TableCell>
                                 <TableCell>{entry.first_name}</TableCell>
                                 <TableCell>{entry.last_name}</TableCell>
@@ -137,14 +190,27 @@ const EntriesList = ({ entries, setEntries, onEdit }) => {
                         ))}
                     </TableBody>
                 </StyledTable>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    style={{ marginTop: '10px' }}
+                    onClick={handleDeleteSelected}
+                    disabled={selectedEntries.length === 0}
+                >
+                    Delete Selected
+                </Button>
                 <CSVLink
-                    data={sortedEntries}
+                    data={selectedEntriesData}
                     headers={csvHeaders}
-                    filename={`entries_${new Date().toISOString()}.csv`}
+                    filename={`selected_entries_${new Date().toISOString()}.csv`}
                     style={{ textDecoration: 'none', color: '#fff' }}
                 >
-                    <Button variant="contained" style={{ backgroundColor: '#F5763A', marginTop: '10px' }}>
-                        Export to CSV
+                    <Button
+                        variant="contained"
+                        style={{ backgroundColor: '#F5763A', marginTop: '10px', marginLeft: '10px' }}
+                        disabled={selectedEntries.length === 0}
+                    >
+                        Export Selected to CSV
                     </Button>
                 </CSVLink>
             </TableContainer>

@@ -81,11 +81,11 @@ Start the React development server:
 
 ## Running unit tests for the Backend (Django)
 
-1. **Run the unit tests (intentionally fail the tests):**
+Run the unit tests (intentionally fail the tests):
 
     python manage.py test api.tests.failingtests
    
 
-2. **Run the unit tests (code to pass the failing tests):**
+Run the unit tests (code to pass the failing tests):
 
     python manage.py test api.tests.passingtests
